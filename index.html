@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="q000 — منصة فحص الملفات المتقدم. برمجة: DOJKA">
+    <meta name="author" content="DOJKA">
+    <title>q000 — Advanced File Scanner</title>
+
+    <script>
+        /* apply the saved black & white theme before the first paint */
+        try {
+            document.documentElement.dataset.theme =
+                localStorage.getItem('q000.theme') === 'light' ? 'light' : 'dark';
+        } catch (e) {
+            document.documentElement.dataset.theme = 'dark';
+        }
+    </script>
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230a0a0a'/%3E%3Ctext x='50' y='70' font-family='Arial' font-size='56' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3Eq%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="ambient" aria-hidden="true">
+    <span class="amb amb-1"></span>
+    <span class="amb amb-2"></span>
+    <span class="amb amb-3"></span>
+    <span class="amb-grid"></span>
+</div>
+
+<div class="app">
+
+    <!-- ══════════ TOP BAR ══════════ -->
+    <header class="topbar">
+        <a class="brand" href="#dashboard" data-nav="dashboard">
+            <span class="brand-mark">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 2.2 4.2 5.4v6.1c0 4.7 3.2 8.9 7.8 10.3 4.6-1.4 7.8-5.6 7.8-10.3V5.4L12 2.2Z" fill="url(#gNav)" />
+                    <path d="m8.6 12.1 2.4 2.4 4.4-4.6" stroke="#0a0a0a" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" />
+                    <defs>
+                        <linearGradient id="gNav" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#ffffff" /><stop offset="1" stop-color="#8f8f8f" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </span>
+            <span class="brand-text">
+                <strong>q000</strong>
+                <small data-i18n="app.tagline">فحص الملفات المتقدم</small>
+            </span>
+        </a>
+
+        <div class="topbar-end">
+            <span class="sys-pill" title="q000">
+                <span class="sys-dot"></span>
+                <span data-i18n="top.status">المحركات تعمل</span>
+            </span>
+
+            <button class="icon-btn" id="langToggle" type="button" title="Language">
+                <i class="fas fa-globe"></i>
+                <span id="langLabel">English</span>
+            </button>
+
+            <button class="icon-btn theme-btn" id="themeToggle" type="button" title="Theme" aria-label="Theme">
+                <i class="fas fa-sun tg-sun"></i>
+                <i class="fas fa-moon tg-moon"></i>
+            </button>
+
+            <a class="icon-btn discord" href="https://discord.gg/cfw2" target="_blank" rel="noopener">
+                <i class="fab fa-discord"></i>
+            </a>
+
+            <button class="icon-btn dev-chip" type="button" data-nav="about">
+                <i class="fas fa-code"></i>
+                <span>DOJKA</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ══════════ BODY ══════════ -->
+    <div class="app-body">
+
+        <!-- ─── SIDEBAR ─── -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="side-nav" id="sideNav">
+                <button class="side-link active" type="button" data-nav="dashboard">
+                    <i class="fas fa-gauge-high"></i><span data-i18n="nav.dashboard">لوحة التحكم</span>
+                </button>
+                <button class="side-link" type="button" data-nav="scan">
+                    <i class="fas fa-magnifying-glass"></i><span data-i18n="nav.scan">فحص ملف</span>
+                </button>
+                <button class="side-link" type="button" data-nav="results">
+                    <i class="fas fa-clipboard-list"></i><span data-i18n="nav.results">النتائج</span>
+                </button>
+                <button class="side-link" type="button" data-nav="history">
+                    <i class="fas fa-clock-rotate-left"></i><span data-i18n="nav.history">السجل</span>
+                </button>
+                <button class="side-link" type="button" data-nav="info">
+                    <i class="fas fa-microchip"></i><span data-i18n="nav.info">المحركات</span>
+                </button>
+                <button class="side-link" type="button" data-nav="about">
+                    <i class="fas fa-user-astronaut"></i><span data-i18n="nav.about">المطوّر</span>
+                </button>
+            </nav>
+
+            <div class="side-foot">
+                <div class="side-card">
+                    <i class="fas fa-user-secret"></i>
+                    <p data-i18n="side.privacy">التحليل يتم داخل متصفحك — لا تغادر ملفاتك جهازك أبداً.</p>
+                </div>
+                <div class="side-ver">q000 v1.0 · <b>DOJKA</b></div>
+            </div>
+        </aside>
+
+        <!-- ─── CONTENT ─── -->
+        <main class="content" id="content">
+
+            <!-- ░░ DASHBOARD ░░ -->
+            <section class="view active" data-view="dashboard">
+                <div class="view-head">
+                    <div>
+                        <h1 data-i18n="dash.title">لوحة التحكم</h1>
+                        <p data-i18n="dash.sub">نظرة سريعة على نشاط فحص الملفات</p>
+                    </div>
+                    <button class="btn btn-primary" type="button" data-nav="scan">
+                        <i class="fas fa-plus"></i><span data-i18n="dash.newScan">فحص جديد</span>
+                    </button>
+                </div>
+
+                <div class="kpi-row">
+                    <div class="kpi">
+                        <span class="kpi-icon cyan"><i class="fas fa-clipboard-check"></i></span>
+                        <div class="kpi-body">
+                            <span class="kpi-value" id="kpiScanned">0</span>
+                            <span class="kpi-label" data-i18n="kpi.scanned">ملفات مفحوصة</span>
+                        </div>
+                        <div class="kpi-spark"><i style="--w:22%"></i><i style="--w:38%"></i><i style="--w:30%"></i><i style="--w:55%"></i><i style="--w:48%"></i><i style="--w:70%"></i><i style="--w:88%"></i></div>
+                    </div>
+                    <div class="kpi">
+                        <span class="kpi-icon rose"><i class="fas fa-bug"></i></span>
+                        <div class="kpi-body">
+                            <span class="kpi-value" id="kpiThreats">0</span>
+                            <span class="kpi-label" data-i18n="kpi.threats">تهديدات مكتشفة</span>
+                        </div>
+                        <div class="kpi-spark"><i style="--w:10%"></i><i style="--w:14%"></i><i style="--w:12%"></i><i style="--w:22%"></i><i style="--w:18%"></i><i style="--w:26%"></i><i style="--w:20%"></i></div>
+                    </div>
+                    <div class="kpi">
+                        <span class="kpi-icon violet"><i class="fas fa-microchip"></i></span>
+                        <div class="kpi-body">
+                            <span class="kpi-value">52</span>
+                            <span class="kpi-label" data-i18n="kpi.engines">محرك فحص</span>
+                        </div>
+                        <div class="kpi-spark"><i style="--w:60%"></i><i style="--w:62%"></i><i style="--w:64%"></i><i style="--w:66%"></i><i style="--w:68%"></i><i style="--w:70%"></i><i style="--w:72%"></i></div>
+                    </div>
+                    <div class="kpi">
+                        <span class="kpi-icon green"><i class="fas fa-heart-pulse"></i></span>
+                        <div class="kpi-body">
+                            <span class="kpi-value" id="kpiSafe">—</span>
+                            <span class="kpi-label" data-i18n="kpi.safeRate">نسبة الملفات الآمنة</span>
+                        </div>
+                        <div class="kpi-spark"><i style="--w:80%"></i><i style="--w:78%"></i><i style="--w:84%"></i><i style="--w:86%"></i><i style="--w:90%"></i><i style="--w:92%"></i><i style="--w:96%"></i></div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="panel">
+                        <div class="panel-head">
+                            <h2><i class="fas fa-bolt"></i><span data-i18n="dash.quickTitle">فحص سريع</span></h2>
+                        </div>
+                        <div class="quick">
+                            <button class="quick-drop" type="button" id="quickDrop">
+                                <span class="quick-icon"><i class="fas fa-cloud-arrow-up"></i></span>
+                                <span class="quick-title" data-i18n="dash.quickDrop">أفلت ملفاً هنا أو اضغط للاختيار</span>
+                                <span class="quick-sub" data-i18n="dash.quickLimit">حتى 256 ميجابايت</span>
+                            </button>
+                            <button class="quick-url-link" type="button" id="quickUrl">
+                                <i class="fas fa-link"></i><span data-i18n="dash.urlScan">أو افحص رابطاً بدل ملف</span>
+                            </button>
+                            <div class="quick-file" id="quickFile" hidden>
+                                <div class="qf-row">
+                                    <i class="fas fa-file-lines"></i>
+                                    <div>
+                                        <strong id="qfName">—</strong>
+                                        <small id="qfMeta">—</small>
+                                    </div>
+                                </div>
+                                <div class="qf-actions">
+                                    <button class="btn btn-primary btn-sm" type="button" data-nav="scan" data-i18n="dash.proceed">متابعة الفحص</button>
+                                    <button class="btn btn-ghost btn-sm" type="button" id="qfClear" data-i18n="dash.clear">إزالة</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-head">
+                            <h2><i class="fas fa-clock-rotate-left"></i><span data-i18n="dash.recent">آخر الفحوصات</span></h2>
+                            <button class="link-btn" type="button" data-nav="history" data-i18n="dash.viewAll">عرض السجل</button>
+                        </div>
+                        <div class="recent" id="recentList">
+                            <div class="empty">
+                                <i class="fas fa-inbox"></i>
+                                <p data-i18n="dash.noHistory">لا يوجد سجل فحوصات بعد</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ░░ SCAN ░░ -->
+            <section class="view" data-view="scan">
+                <div class="view-head">
+                    <div>
+                        <h1 data-i18n="scan.title">فحص ملف</h1>
+                        <p data-i18n="scan.sub">اختر الملف والخيارات ثم ابدأ الفحص</p>
+                    </div>
+                </div>
+
+                <div class="scan-layout">
+                    <div class="panel">
+                        <div class="mode-switch" id="modeSwitch">
+                            <button class="mode-btn active" type="button" data-mode="file">
+                                <i class="fas fa-file-arrow-up"></i><span data-i18n="mode.file">ملف من الجهاز</span>
+                            </button>
+                            <button class="mode-btn" type="button" data-mode="url">
+                                <i class="fas fa-link"></i><span data-i18n="mode.url">رابط إنترنت</span>
+                            </button>
+                        </div>
+
+                        <div class="dropzone" id="uploadArea">
+                            <div class="dz-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                            <h3 data-i18n="dz.title">اسحب وأفلت الملف هنا</h3>
+                            <p data-i18n="dz.sub">أو انقر للاختيار من جهازك</p>
+                            <span class="dz-limit" data-i18n="dz.limit">الحد الأقصى: 256 ميجابايت</span>
+                        </div>
+
+                        <div class="url-box" id="urlBox" hidden>
+                            <div class="url-field">
+                                <i class="fas fa-globe"></i>
+                                <input type="text" id="urlInput" dir="ltr" spellcheck="false" autocomplete="off"
+                                       placeholder="https://example.com/file.exe" data-i18n-placeholder="url.placeholder">
+                                <button class="btn btn-primary btn-sm" type="button" id="urlGo" data-i18n="url.check">تحليل</button>
+                            </div>
+                            <p class="url-hint"><i class="fas fa-circle-info"></i><span data-i18n="url.hint">يُحلَّل بنية الرابط ونطاده داخل جهازك، ونحاول قراءة محتوى الصفحة إن سمح الموقع ذلك.</span></p>
+                        </div>
+
+                        <div class="scan-opts" id="fileOpts">
+                            <h4><i class="fas fa-sliders"></i><span data-i18n="scan.options">خيارات الفحص</span></h4>
+                            <div class="opts-grid">
+                                <label class="opt"><input type="checkbox" checked><span class="chk"></span><span data-i18n="opt.1">فحص الفيروسات</span></label>
+                                <label class="opt"><input type="checkbox" checked><span class="chk"></span><span data-i18n="opt.2">فحص البرمجيات الخبيثة</span></label>
+                                <label class="opt"><input type="checkbox" checked><span class="chk"></span><span data-i18n="opt.3">فحص التروجان</span></label>
+                                <label class="opt"><input type="checkbox" checked><span class="chk"></span><span data-i18n="opt.4">فحص الجذور الخفية</span></label>
+                            </div>
+                        </div>
+
+                        <div class="scan-opts" id="urlOpts" hidden>
+                            <h4><i class="fas fa-sliders"></i><span data-i18n="url.opts">خيارات فحص الرابط</span></h4>
+                            <div class="opts-grid">
+                                <label class="opt"><input type="checkbox" id="urlOptStatic" checked><span class="chk"></span><span data-i18n="url.opt1">تحليل بنية الرابط والنطاق</span></label>
+                                <label class="opt"><input type="checkbox" id="urlOptContent" checked><span class="chk"></span><span data-i18n="url.opt2">محاولة قراءة محتوى الصفحة</span></label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary btn-block" type="button" id="scanButton" disabled>
+                            <i class="fas fa-play"></i><span data-i18n="scan.start">بدء الفحص</span>
+                        </button>
+                        <p class="fine-print"><i class="fas fa-lock"></i><span data-i18n="scan.hint">التحليل يتم داخل متصفحك — لا يتم رفع الملفات</span></p>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-head">
+                            <h2><i class="fas fa-circle-info" id="fileInfoIcon"></i><span id="fileInfoLabel" data-i18n="scan.fileInfo">تفاصيل الملف</span></h2>
+                        </div>
+                        <dl class="meta-list" id="fileMeta">
+                            <div><dt id="lblName" data-i18n="m.name">الاسم</dt><dd id="valName" data-i18n="scan.empty">لم يتم اختيار أي ملف</dd></div>
+                            <div><dt id="lblSize" data-i18n="m.size">الحجم</dt><dd id="valSize">—</dd></div>
+                            <div><dt id="lblType" data-i18n="m.type">النوع</dt><dd id="valType">—</dd></div>
+                            <div><dt id="lblExt" data-i18n="m.ext">الامتداد</dt><dd id="valExt">—</dd></div>
+                            <div><dt id="lblModified" data-i18n="m.modified">آخر تعديل</dt><dd id="valModified">—</dd></div>
+                        </dl>
+                        <div class="engine-note">
+                            <i class="fas fa-info-circle"></i>
+                            <p id="engineNote" data-i18n="scan.engineNote">سيتم تشغيل 3 محركات أساسية على الملف، مع تحليل استدلالي للتوقيعات والمحتوى.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ░░ RESULTS ░░ -->
+            <section class="view" data-view="results">
+                <div class="view-head">
+                    <div>
+                        <h1 data-i18n="res.title">نتائج الفحص</h1>
+                        <p data-i18n="res.sub">تقرير كامل عن آخر عملية فحص</p>
+                    </div>
+                </div>
+
+                <div class="empty-page" id="resultsEmpty">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3 data-i18n="res.empty">لا توجد نتائج بعد</h3>
+                    <p data-i18n="res.emptySub">ابدأ بفحص ملف لعرض النتائج هنا</p>
+                    <button class="btn btn-primary" type="button" data-nav="scan"><i class="fas fa-magnifying-glass"></i><span data-i18n="dash.newScan">فحص جديد</span></button>
+                </div>
+
+                <div id="resultsBody" hidden>
+                    <div class="verdict" id="verdictCard">
+                        <div class="verdict-icon" id="verdictIcon"><i class="fas fa-shield-virus"></i></div>
+                        <div class="verdict-text">
+                            <h2 id="verdictTitle">—</h2>
+                            <p id="verdictSub">—</p>
+                        </div>
+                        <div class="verdict-badges">
+                            <span class="badge" id="badgeCert">—</span>
+                            <span class="badge" id="badgeEngines">—</span>
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div class="panel">
+                            <div class="panel-head">
+                                <h2><i class="fas fa-file-lines"></i><span data-i18n="res.file">الملف</span></h2>
+                            </div>
+                            <dl class="meta-list" id="resFileMeta">
+                                <div><dt id="rLblName" data-i18n="m.name">الاسم</dt><dd id="rValName">—</dd></div>
+                                <div><dt id="rLblSize" data-i18n="m.size">الحجم</dt><dd id="rValSize">—</dd></div>
+                                <div><dt id="rLblType" data-i18n="m.type">النوع</dt><dd id="rValType">—</dd></div>
+                                <div><dt id="rLblTime" data-i18n="m.scanned">وقت الفحص</dt><dd id="rValTime">—</dd></div>
+                            </dl>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-head">
+                                <h2><i class="fas fa-chart-pie"></i><span data-i18n="res.summary">ملخّص</span></h2>
+                            </div>
+                            <div class="stat-rows">
+                                <div class="stat-row"><span data-i18n="res.engines">محركات الفحص</span><b id="resEngines">—</b></div>
+                                <div class="stat-row"><span data-i18n="res.threats">التهديدات</span><b id="resThreats">—</b></div>
+                                <div class="stat-row"><span data-i18n="res.safety">مستوى الأمان</span><b id="resSafety">—</b></div>
+                                <div class="stat-row"><span data-i18n="res.certId">رقم الشهادة</span><b id="resCertId">—</b></div>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div class="panel-head">
+                                <h2><i class="fas fa-lightbulb"></i><span data-i18n="res.recs">الإجراءات الموصى بها</span></h2>
+                            </div>
+                            <ul class="rec-list" id="recList"></ul>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-head">
+                            <h2><i class="fas fa-magnifying-glass"></i><span data-i18n="res.details">تفاصيل التحليل</span></h2>
+                        </div>
+                        <ul class="detail-list" id="detailList"></ul>
+                    </div>
+
+                    <div class="actions-row">
+                        <button class="btn btn-primary" type="button" id="btnCert"><i class="fas fa-certificate"></i><span data-i18n="res.cert">تحميل الشهادة</span></button>
+                        <button class="btn btn-ghost" type="button" id="btnCopy"><i class="fas fa-copy"></i><span data-i18n="res.copy">نسخ النتيجة</span></button>
+                        <button class="btn btn-ghost" type="button" data-nav="scan"><i class="fas fa-rotate-right"></i><span data-i18n="res.again">فحص ملف آخر</span></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ░░ HISTORY ░░ -->
+            <section class="view" data-view="history">
+                <div class="view-head">
+                    <div>
+                        <h1 data-i18n="hist.title">سجل الفحوصات</h1>
+                        <p data-i18n="hist.sub">محفوظ محلياً في متصفحك</p>
+                    </div>
+                    <button class="btn btn-ghost" type="button" id="btnClearHistory">
+                        <i class="fas fa-trash"></i><span data-i18n="hist.clear">مسح السجل</span>
+                    </button>
+                </div>
+
+                <div class="panel">
+                    <div class="table-wrap">
+                        <table class="table" id="histTable">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="hist.file">الملف</th>
+                                    <th data-i18n="hist.verdict">النتيجة</th>
+                                    <th data-i18n="hist.engines">المحركات</th>
+                                    <th data-i18n="hist.date">التاريخ</th>
+                                    <th data-i18n="hist.actions">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="histBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty" id="histEmpty">
+                        <i class="fas fa-inbox"></i>
+                        <p data-i18n="hist.empty">لا توجد فحوصات محفوظة</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ░░ ENGINES / INFO ░░ -->
+            <section class="view" data-view="info">
+                <div class="view-head">
+                    <div>
+                        <h1 data-i18n="info.title">محركات الفحص</h1>
+                        <p data-i18n="info.sub">الوحدات المستخدمة في تحليل الملفات</p>
+                    </div>
+                </div>
+
+                <div class="grid-3" id="engineGrid"></div>
+
+                <div class="view-head spaced">
+                    <div>
+                        <h1 data-i18n="feat.title">مميزات المنصة</h1>
+                        <p data-i18n="feat.sub">ما الذي تحصل عليه عند استخدام q000</p>
+                    </div>
+                </div>
+                <div class="grid-3" id="featureGrid"></div>
+            </section>
+
+            <!-- ░░ ABOUT / DEVELOPER ░░ -->
+            <section class="view" data-view="about">
+                <div class="view-head">
+                    <div>
+                        <h1 data-i18n="about.title">عن المطوّر</h1>
+                        <p data-i18n="about.sub">من بنى q000</p>
+                    </div>
+                </div>
+
+                <div class="dev-grid">
+                    <div class="dev-card">
+                        <span class="dev-label"><i class="fas fa-code"></i><span data-i18n="about.label">المبرمج</span></span>
+                        <h2 class="dev-name">DOJKA</h2>
+                        <p class="dev-role" data-i18n="about.role">المطوّر والمصمم الرئيسي لمنصة q000 — مسؤول عن الواجهة، نظام الفحص، وتوليد شهادات النتائج.</p>
+                        <div class="chips" id="skillChips"></div>
+                        <div class="dev-stats">
+                            <div><b>52</b><span data-i18n="kpi.engines">محرك فحص</span></div>
+                            <div><b>2</b><span data-i18n="about.langs">لغتان</span></div>
+                            <div><b>0</b><span data-i18n="about.uploads">خوادم</span></div>
+                        </div>
+                    </div>
+
+                    <div class="code-card">
+                        <div class="code-bar">
+                            <i></i><i></i><i></i>
+                            <span>q000.config.js</span>
+                        </div>
+<pre><code><span class="c-com" data-i18n="about.c1">// هوية المنصة</span>
+<span class="c-key">const</span> <span class="c-fn">q000</span> = {
+  <span class="c-prop">name</span>:     <span class="c-str">"q000"</span>,
+  <span class="c-prop">type</span>:     <span class="c-str">"advanced file scanner"</span>,
+  <span class="c-prop">engines</span>:  <span class="c-num">52</span>,
+  <span class="c-prop">uploads</span>:  <span class="c-num">0</span>,   <span class="c-com">// privacy-first</span>
+  <span class="c-prop">i18n</span>:     [<span class="c-str">"ar"</span>, <span class="c-str">"en"</span>]
+};
+
+<span class="c-com" data-i18n="about.c2">// المطوّر</span>
+<span class="c-key">export default</span> { developer: <span class="c-str">"DOJKA"</span> };</code></pre>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ══════════ FOOTER ══════════ -->
+    <footer class="app-footer">
+        <p data-i18n="foot.rights">© 2026 q000 — جميع الحقوق محفوظة</p>
+        <p class="made"><span data-i18n="foot.made">صُنع بواسطة</span> <b>DOJKA</b> <i class="fas fa-heart"></i></p>
+    </footer>
+</div>
+
+<!-- ══════════ SCANNING OVERLAY ══════════ -->
+<div class="overlay" id="scanOverlay" hidden>
+    <div class="overlay-card">
+        <div class="ov-top">
+            <div class="ov-ring">
+                <svg viewBox="0 0 120 120">
+                    <circle class="ring-track" cx="60" cy="60" r="52"></circle>
+                    <circle class="ring-bar" id="ringBar" cx="60" cy="60" r="52"></circle>
+                </svg>
+                <div class="ov-pct"><span id="progressPercent">0</span><small>%</small></div>
+            </div>
+            <h2 data-i18n="ov.title">جاري فحص الملف</h2>
+            <p class="ov-file" id="ovFile">—</p>
+            <p class="ov-status" id="scanningStatus" data-i18n="ov.prep">تهيئة المحركات…</p>
+        </div>
+
+        <ul class="eng-list" id="engineList"></ul>
+
+        <div class="console" id="scanLog"></div>
+    </div>
+</div>
+
+<input type="file" id="fileInput" hidden>
+<canvas id="certificateCanvas" hidden></canvas>
+
+<script src="js/app.js"></script>
+<script src="js/certificate-generator.js"></script>
+</body>
+</html>
